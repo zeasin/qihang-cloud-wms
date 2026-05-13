@@ -3,7 +3,7 @@ import request from '@/utils/request'
 // 查询供应商管理列表
 export function listMerchant(query) {
   return request({
-    url: '/api/oms-api/merchant/list',
+    url: '/merchant/list',
     method: 'get',
     params: query
   })

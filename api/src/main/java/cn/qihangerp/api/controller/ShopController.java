@@ -1,15 +1,20 @@
 package cn.qihangerp.api.controller;
 
 import cn.qihangerp.common.AjaxResult;
+import cn.qihangerp.common.PageQuery;
+import cn.qihangerp.common.PageResult;
 import cn.qihangerp.common.TableDataInfo;
+import cn.qihangerp.common.enums.EnumUserType;
 import cn.qihangerp.model.entity.OShop;
-import cn.qihangerp.service.service.OLogisticsCompanyService;
-import cn.qihangerp.service.service.OShopService;
+import cn.qihangerp.security.common.SecurityUtils;
+import cn.qihangerp.service.OLogisticsCompanyService;
+import cn.qihangerp.service.OShopService;
 import cn.qihangerp.security.common.BaseController;
 import lombok.AllArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -37,7 +42,27 @@ public class ShopController extends BaseController {
         return getDataTable(list);
     }
 
+    @GetMapping("/pageList")
+    public TableDataInfo pageList(OShop shop, PageQuery pageQuery) {
+        Integer userIdentity = SecurityUtils.getUserIdentity();
+        Long merchantId = null;
+        if (userIdentity == null) {
+            return getDataTable(new ArrayList<>());
+        } else if (userIdentity == 0) {
+            merchantId = shop.getMerchantId();
+        } else if (userIdentity == EnumUserType.MERCHANT.getIndex()) {
+            merchantId = SecurityUtils.getDeptId();
+            shop.setMerchantId(merchantId);
+        } else if (userIdentity == EnumUserType.WAREHOUSE.getIndex()) {
+            return getDataTable(new ArrayList<>());
+        } else {
+            return getDataTable(new ArrayList<>());
+        }
 
+        PageResult<OShop> pageList = shopService.queryPageList(shop, pageQuery);
+
+        return getDataTable(pageList);
+    }
     /**
      * 获取店铺详细信息
      */

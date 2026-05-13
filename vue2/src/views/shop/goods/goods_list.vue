@@ -349,7 +349,6 @@ import {MessageBox} from "element-ui";
 import {isRelogin} from "@/utils/request";
 import { listMerchant } from '@/api/shop/merchant'
 import {amountFormatter, rowDataItemIndex} from '@/utils/zhijian'
-import {getInternalSystemConfig} from "@/api/third_system";
 import {getUserProfile} from "@/api/system/user";
 import {listPlatform} from "@/api/vms/shop";
 import PopupSkuList from "@/views/goods/PopupSkuList.vue";
@@ -510,12 +509,6 @@ export default {
     })
   },
   created() {
-    getInternalSystemConfig(400).then(response => {
-      if (response.data) {
-        this.diansanConfig = true;
-      }
-    })
-
     // listMerchant({ pageNum: 1, pageSize: 100 }).then(resp => {
     //   this.merchantList = resp.rows
     // })

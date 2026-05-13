@@ -1,18 +1,14 @@
 package cn.qihangerp.api.controller.oms;
 
-import cn.qihangerp.api.request.PddTokenCreateBo;
 import cn.qihangerp.common.AjaxResult;
 import cn.qihangerp.common.ResultVo;
 import cn.qihangerp.common.csv.CSVReaderWithApacheCommons;
 import cn.qihangerp.common.enums.EnumShopType;
-import cn.qihangerp.model.entity.OGoodsSku;
-import cn.qihangerp.model.entity.OOrder;
-import cn.qihangerp.model.entity.OOrderItem;
 import cn.qihangerp.model.entity.OShop;
 import cn.qihangerp.model.request.OrderImportRequest;
 import cn.qihangerp.model.vo.OrderItemImportVo;
-import cn.qihangerp.service.service.OOrderService;
-import cn.qihangerp.service.service.OShopService;
+import cn.qihangerp.service.OOrderService;
+import cn.qihangerp.service.OShopService;
 import com.alibaba.fastjson2.JSON;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import lombok.AllArgsConstructor;
@@ -21,8 +17,6 @@ import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.NumberToTextConverter;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.springframework.util.MultiValueMap;
-import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 

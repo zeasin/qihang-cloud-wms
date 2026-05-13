@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.qihangerp.mapper.ErpWarehouseMerchantMapper">
+
+    <resultMap id="BaseResultMap" type="cn.qihangerp.model.entity.ErpWarehouseMerchant">
+            <id property="id" column="id" />
+            <result property="warehouseId" column="warehouse_id" />
+            <result property="warehouseType" column="warehouse_type" />
+            <result property="warehouseName" column="warehouse_name" />
+            <result property="warehouseNo" column="warehouse_no" />
+            <result property="warehouseAddress" column="warehouse_address" />
+            <result property="merchantId" column="merchant_id" />
+            <result property="nickName" column="nick_name" />
+            <result property="mobile" column="mobile" />
+            <result property="avatar" column="avatar" />
+            <result property="status" column="status" />
+            <result property="delFlag" column="del_flag" />
+            <result property="createBy" column="create_by" />
+            <result property="createTime" column="create_time" />
+            <result property="updateBy" column="update_by" />
+            <result property="updateTime" column="update_time" />
+            <result property="remark" column="remark" />
+            <result property="name" column="name" />
+            <result property="number" column="number" />
+            <result property="usci" column="usci" />
+            <result property="faren" column="faren" />
+            <result property="bank" column="bank" />
+            <result property="linkMan" column="link_man" />
+            <result property="address" column="address" />
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,warehouse_id,warehouse_type,warehouse_name,warehouse_no,warehouse_address,merchant_id,nick_name,mobile,avatar,status,
+        del_flag,create_by,create_time,update_by,update_time,
+        remark,name,number,usci,faren,
+        bank,link_man,address
+    </sql>
+</mapper>

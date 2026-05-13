@@ -5,7 +5,7 @@ import cn.qihangerp.common.PageQuery;
 import cn.qihangerp.common.PageResult;
 import cn.qihangerp.common.TableDataInfo;
 import cn.qihangerp.model.entity.OAfterSale;
-import cn.qihangerp.service.service.OAfterSaleService;
+import cn.qihangerp.service.OAfterSaleService;
 import cn.qihangerp.security.common.BaseController;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;

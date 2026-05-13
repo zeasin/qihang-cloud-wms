@@ -13,7 +13,6 @@
 
 import ShopGoods  from "@/views/shop/goods/index";
 import {listPlatform} from "@/api/shop/shop";
-import GoodsTl from "@/views/thirdSystem/tanglang/goods_index.vue";
 
 export default {
   name: "Goods",

@@ -8,7 +8,7 @@ import cn.qihangerp.model.bo.PurchaseOrderAddBo;
 import cn.qihangerp.model.bo.PurchaseOrderOptionBo;
 import cn.qihangerp.model.query.SearchBo;
 import cn.qihangerp.model.entity.ErpPurchaseOrder;
-import cn.qihangerp.service.service.ErpPurchaseOrderService;
+import cn.qihangerp.service.ErpPurchaseOrderService;
 import cn.qihangerp.security.common.BaseController;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.AllArgsConstructor;

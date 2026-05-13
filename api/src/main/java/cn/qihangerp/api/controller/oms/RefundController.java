@@ -8,7 +8,7 @@ import cn.qihangerp.common.ResultVo;
 import cn.qihangerp.common.TableDataInfo;
 import cn.qihangerp.model.bo.RefundProcessingBo;
 import cn.qihangerp.model.bo.RefundSearchBo;
-import cn.qihangerp.service.service.ORefundService;
+import cn.qihangerp.service.ORefundService;
 import cn.qihangerp.security.common.BaseController;
 import com.alibaba.fastjson2.JSONObject;
 import lombok.AllArgsConstructor;

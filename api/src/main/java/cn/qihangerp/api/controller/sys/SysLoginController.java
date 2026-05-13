@@ -7,16 +7,15 @@ import cn.qihangerp.common.config.RedisCache;
 import cn.qihangerp.common.sys.ISysUserService;
 import cn.qihangerp.common.sys.SysUser;
 import cn.qihangerp.common.vo.UserVo;
-import cn.qihangerp.model.entity.OShop;
 import cn.qihangerp.model.entity.SysMenuMms;
 import cn.qihangerp.model.entity.SysMenuWms;
 import cn.qihangerp.model.request.LoginBody;
 import cn.qihangerp.model.entity.SysMenu;
 import cn.qihangerp.model.vo.RouterVo;
-import cn.qihangerp.service.service.ISysMenuService;
-import cn.qihangerp.service.service.SysMenuMmsService;
-import cn.qihangerp.service.service.SysMenuWmsService;
-import cn.qihangerp.service.service.SysPermissionService;
+import cn.qihangerp.service.ISysMenuService;
+import cn.qihangerp.service.SysMenuMmsService;
+import cn.qihangerp.service.SysMenuWmsService;
+import cn.qihangerp.service.SysPermissionService;
 import cn.qihangerp.security.common.Constants;
 import cn.qihangerp.common.AjaxResult;
 import cn.qihangerp.security.common.SecurityUtils;
@@ -27,9 +26,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
-import java.util.HashMap;
+
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 /**

@@ -9,7 +9,7 @@ import cn.qihangerp.model.request.WarehouseStockTakeAddItemRequest;
 import cn.qihangerp.model.request.WarehouseStockTakeCreateRequest;
 import cn.qihangerp.security.common.BaseController;
 import cn.qihangerp.security.common.SecurityUtils;
-import cn.qihangerp.service.service.ErpWarehouseStockTakeService;
+import cn.qihangerp.service.ErpWarehouseStockTakeService;
 import com.alibaba.fastjson2.JSONObject;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.AllArgsConstructor;

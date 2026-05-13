@@ -4,7 +4,7 @@ import cn.qihangerp.common.*;
 import cn.qihangerp.model.bo.LinkErpGoodsSkuBo;
 import cn.qihangerp.model.entity.OmsShopGoodsSku;
 import cn.qihangerp.security.common.BaseController;
-import cn.qihangerp.service.service.OmsShopGoodsSkuService;
+import cn.qihangerp.service.OmsShopGoodsSkuService;
 
 import lombok.AllArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
