@@ -136,11 +136,8 @@
 <script>
 import { searchSkuInventoryBatch } from "@/api/goods/goodsInventory";
 import {stockOutCreate} from "@/api/wms/stockOut";
-import {listShop} from "@/api/shop/shop";
-
-import {searchSku} from "../../../api/goods/goods";
 import { listWarehouse } from '@/api/wms/warehouse'
-import {listMyLocalWarehouse} from "@/api/store/warehouse";
+
 import {getUserProfile} from "@/api/system/user";
 
 export default {

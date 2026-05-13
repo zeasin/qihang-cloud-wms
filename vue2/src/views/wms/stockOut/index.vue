@@ -267,7 +267,7 @@ import {listShop} from "@/api/shop/shop";
 import {listGroup} from "@/api/shop/group";
 import { listWarehouse } from '@/api/wms/warehouse'
 import {getUserProfile} from "@/api/system/user";
-import {listMyLocalWarehouse} from "@/api/store/warehouse";
+
 export default {
   name: "StockOutEntry",
   data() {

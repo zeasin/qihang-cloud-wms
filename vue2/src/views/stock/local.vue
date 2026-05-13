@@ -162,7 +162,7 @@
 
 <script>
 import { listGoodsInventory, getGoodsInventory } from "@/api/goods/goodsInventory";
-import {listMyLocalWarehouse} from '@/api/store/warehouse'
+// import {listMyLocalWarehouse} from '@/api/store/warehouse'
 
 export default {
   name: "LocalWarehouseGoodsInventory",

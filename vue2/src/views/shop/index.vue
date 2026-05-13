@@ -62,35 +62,7 @@
           @click="handleAdd"
         >新增</el-button>
       </el-col>
-      <!--      <el-col :span="1.5">-->
-      <!--        <el-button-->
-      <!--          type="success"-->
-      <!--          plain-->
-      <!--          icon="el-icon-edit"-->
-      <!--          size="mini"-->
-      <!--          :disabled="single"-->
-      <!--          @click="handleUpdate"-->
-      <!--        >修改</el-button>-->
-      <!--      </el-col>-->
-      <!--      <el-col :span="1.5">-->
-      <!--        <el-button-->
-      <!--          type="danger"-->
-      <!--          plain-->
-      <!--          icon="el-icon-delete"-->
-      <!--          size="mini"-->
-      <!--          :disabled="multiple"-->
-      <!--          @click="handleDelete"-->
-      <!--        >删除</el-button>-->
-      <!--      </el-col>-->
-      <el-col :span="1.5">
-        <el-button
-          type="info"
-          plain
-          icon="el-icon-refresh"
-          size="mini"
-          @click="handlePull"
-        >同步店铺数据</el-button>
-      </el-col>
+
       <right-toolbar :show-search.sync="showSearch" @queryTable="getList" />
     </el-row>
 
@@ -98,12 +70,6 @@
       <!--      <el-table-column type="selection" width="55" align="center" />-->
       <el-table-column label="店铺ID" align="center" prop="id" width="100" />
       <el-table-column label="店铺名" align="left" prop="name" />
-      <el-table-column label="共享库存" align="center" prop="allowInventoryShare" width="120">
-        <template slot-scope="scope">
-          <el-tag v-if="scope.row.allowInventoryShare==1">开启</el-tag>
-          <el-tag v-else type="info">关闭</el-tag>
-        </template>
-      </el-table-column>
       <el-table-column label="平台" align="center" prop="type">
         <template slot-scope="scope">
           <el-tag>{{ typeList.find(x=>x.id === scope.row.type)?typeList.find(x=>x.id === scope.row.type).name:'' }}</el-tag>
@@ -162,22 +128,6 @@
       </el-table-column>
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width" width="180px">
         <template slot-scope="scope">
-
-          <!--            <el-button-->
-          <!--              type="primary"-->
-          <!--              plain-->
-          <!--              icon="el-icon-s-goods"-->
-          <!--              size="mini"-->
-          <!--              @click="handleGoodsList(scope.row)"-->
-          <!--            >店铺商品管理</el-button>-->
-          <!--          <el-button-->
-          <!--            type="primary"-->
-          <!--            plain-->
-          <!--            icon="el-icon-edit"-->
-          <!--            size="mini"-->
-          <!--            @click="handleLogistics(scope.row)"-->
-          <!--          >快递公司库</el-button>-->
-
           <el-row>
             <el-button
               size="mini"
@@ -191,15 +141,6 @@
               icon="el-icon-delete"
               @click="handleDelete(scope.row)"
             >删除</el-button>
-
-            <el-button
-              v-hasPermi="['shop:shopAccount:add']"
-              size="mini"
-              plain
-              style="padding-left: 10px;padding-right: 10px;"
-              type="primary"
-              @click="handleSetLoginName(scope.row)"
-            >设置登录账号</el-button>
           </el-row>
 
           <el-row style="padding-top: 8px">
@@ -212,14 +153,6 @@
               size="mini"
               @click="handleUpdateToken(scope.row)"
             >更新授权</el-button>
-
-            <el-button
-              v-if="scope.row.type!==999 && scope.row.type!==911 && diansanConfig"
-              style="padding-left: 6px;padding-right: 6px"
-              plain
-              size="mini"
-              @click="handleDiansanAuth(scope.row)"
-            >点三授权</el-button>
           </el-row>
           <el-row>
             <el-button
@@ -382,39 +315,6 @@
       <!--      </div>-->
     </el-dialog>
 
-    <!--设置登录账号-->
-    <el-dialog title="设置登陆账户" :visible.sync="openPwd" width="800px" append-to-body :close-on-click-modal="false">
-      <el-table :data="accountList" style="margin-bottom: 10px;">
-        <el-table-column label="序号" align="center" type="index" width="50" />
-
-        <el-table-column label="账号" prop="userName" />
-
-        <el-table-column label="创建时间" prop="num">
-          <template slot-scope="scope">
-            <span>{{ parseTime(scope.row.createTime) }}</span>
-          </template>
-        </el-table-column>
-        <el-table-column label="最后登录时间" prop="num">
-          <template slot-scope="scope">
-            <span>{{ parseTime(scope.row.loginDate) }}</span>
-          </template>
-        </el-table-column>
-      </el-table>
-      <el-divider content-position="left" style="width: 350px">添加新账号</el-divider>
-      <el-form ref="pwdForm" :model="pwdForm" :rules="pwdRules" label-width="88px">
-        <el-form-item label="登录名" prop="loginName">
-          <el-input v-model="pwdForm.loginName" placeholder="请输入登录名" style="width: 350px" />
-        </el-form-item>
-        <el-form-item label="登录密码" prop="loginPwd">
-          <el-input v-model="pwdForm.loginPwd" placeholder="请输入登录密码" style="width: 350px" />
-        </el-form-item>
-      </el-form>
-      <div slot="footer" class="dialog-footer">
-        <el-button type="primary" @click="submitPwdForm">确 定</el-button>
-        <el-button @click="cancel">取 消</el-button>
-      </div>
-    </el-dialog>
-
     <!--点三授权-->
     <el-dialog :title="title" :visible.sync="dsAuthOpen" width="500px" append-to-body :close-on-click-modal="false">
       <el-form ref="tokenForm" :model="tokenForm" :rules="tokenRules" label-width="100px">
@@ -500,16 +400,13 @@ import {
   addShop,
   updateShop,
   getShopPullTime,
-  saveShopPullTime,
-  getLoginAccount,
-  syncShop,
-  setShopLoginName
+  saveShopPullTime
 } from '@/api/shop/shop'
 import { getJdOAuthUrl, getJdToken } from '@/api/jd/shop'
 import { getTaoOAuthUrl, saveSessionKey } from '@/api/tao/shop_api'
 import { getOAuthUrl, getPddToken } from '@/api/pdd/shopApi'
 import { listUser } from '@/api/system/user'
-
+import {listRegion} from "@/api/shop/region";
 import { listMerchant } from '@/api/shop/merchant'
 import { getXhsOAuthUrl, getXhsToken } from '@/api/xhs/shop_api'
 import { getDiansanAuthUrl } from '@/api/shop/oauth'
@@ -628,20 +525,23 @@ export default {
     }
   },
   created() {
-    listPlatform({ status: 0 }).then(res => {
-      this.typeList = res.rows
-      listMerchant({ pageNum: 1, pageSize: 100 }).then(resp => {
-        this.merchantList = resp.rows
-        if (this.merchantList.length === 1) {
-          this.queryParams.merchantId = this.merchantList[0].id
-          this.form.merchantId = this.merchantList[0].id
-          this.isMerchant = true
-        }
-        if (this.merchantList && this.merchantList.length > 0) {
-          this.queryParams.merchantId = this.merchantList[0].id
-          this.form.merchantId = this.merchantList[0].id
-        }
-        this.getList()
+    listRegion().then(response => {
+      this.regionList = response.rows;
+      listPlatform({status: 0}).then(res => {
+        this.typeList = res.rows
+        listMerchant({pageNum: 1, pageSize: 100}).then(resp => {
+          this.merchantList = resp.rows
+          if (this.merchantList.length === 1) {
+            this.queryParams.merchantId = this.merchantList[0].id
+            this.form.merchantId = this.merchantList[0].id
+            this.isMerchant = true
+          }
+          if (this.merchantList && this.merchantList.length > 0) {
+            this.queryParams.merchantId = this.merchantList[0].id
+            this.form.merchantId = this.merchantList[0].id
+          }
+          this.getList()
+        })
       })
     })
   }, mounted() {
@@ -712,12 +612,6 @@ export default {
       this.single = selection.length !== 1
       this.multiple = !selection.length
     },
-    handlePull() {
-      syncShop().then(response => {
-        this.$modal.msgSuccess('同步店铺成功')
-        this.getList()
-      })
-    },
     /** 新增按钮操作 */
     handleAdd() {
       this.reset()
@@ -727,21 +621,6 @@ export default {
       this.form.regionId = 1
       this.open = true
       this.title = '添加店铺'
-    },
-    handleDiansanAuth(row) {
-      getDiansanAuthUrl({ shopId: row.id }).then(response => {
-        console.log('获取token=====diansan====', response)
-        if (response.code === 200) {
-          window.open(response.data)
-        } else {
-          this.$modal.msgError(response.msg)
-        }
-        // this.dsAuthOpen = true;
-        // this.title = "获取店铺授权";
-        // this.tokenForm.url = response.data
-        // this.tokenForm.shopId = row.id
-        // this.tokenForm.shopType = row.type
-      })
     },
     handleUpdateToken(row) {
       console.log('获取token', row)
@@ -930,41 +809,6 @@ export default {
           } else {
             this.$modal.msgError('暂不支持')
           }
-        }
-      })
-    },
-    handleSetLoginName(row) {
-      getLoginAccount(row.id).then(resp => {
-        console.log('==账号list', resp)
-        this.accountList = resp.data
-        this.pwdForm.id = row.id
-        this.pwdForm.loginName = ''
-        this.pwdForm.loginPwd = ''
-        this.openPwd = true
-      })
-      // this.form.id = row.id
-      // this.form.loginName = row.loginName?row.loginName:''
-      // this.form.loginPwd = ''
-      // this.openPwd = true;
-    },
-    submitPwdForm() {
-      this.$refs['pwdForm'].validate(valid => {
-        if (valid) {
-          // 验证密码强度
-          // if (!this.validatePassword(this.user.newPassword,this.user.userName)) {
-          //   this.$modal.msgError(this.passwordError)
-          //   return
-          // }
-          // const res = validatePassword(this.form.loginPwd,this.form.loginName)
-          // if (!res.result) {
-          //   this.$modal.msgError(res.msg)
-          //   return
-          // }
-          setShopLoginName(this.pwdForm).then(response => {
-            this.$modal.msgSuccess('设置登陆账户成功')
-            this.openPwd = false
-            this.getList()
-          })
         }
       })
     },

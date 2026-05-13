@@ -117,7 +117,6 @@ import { searchSku } from "@/api/goods/goods";
 import {stockInCreate} from "@/api/wms/stockIn";
 import { listWarehouse } from '@/api/wms/warehouse'
 import {getUserProfile} from "@/api/system/user";
-import {listMyAllWarehouse} from "@/api/store/warehouse";
 
 export default {
   name: "StockInCreate",

@@ -65,29 +65,6 @@ export function delShop(id) {
     method: 'delete'
   })
 }
-export function syncShop() {
-  return request({
-    url: '/api/oms-api/shop/syncShop',
-    method: 'get'
-  })
-}
-
-// 获取登录账号
-export function getLoginAccount(id) {
-  return request({
-    url: '/api/oms-api/shop/getLoginAccount/' + id,
-    method: 'get'
-  })
-}
-
-// 设置店铺登录账号
-export function setShopLoginName(data) {
-  return request({
-    url: '/api/oms-api/shop/setLoginName',
-    method: 'post',
-    data: data
-  })
-}
 
 // 查询店铺平台列表
 export function listPlatform(query) {
@@ -136,7 +113,6 @@ export function addPlatform(data) {
     data: data
   })
 }
-
 
 export function listShopPullLogs(query) {
   return request({

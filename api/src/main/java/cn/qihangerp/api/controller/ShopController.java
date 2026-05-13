@@ -32,16 +32,21 @@ public class ShopController extends BaseController {
 
 
     /**
-     * 查询店铺列表logistics
+     * 查询店铺列表
      */
     @PreAuthorize("@ss.hasPermi('shop:shop:list')")
     @GetMapping("/list")
-    public TableDataInfo list(OShop shop)
-    {
+    public TableDataInfo list(OShop shop) {
         List<OShop> list = shopService.selectShopList(shop);
         return getDataTable(list);
     }
 
+    /**
+     * 分页
+     * @param shop
+     * @param pageQuery
+     * @return
+     */
     @GetMapping("/pageList")
     public TableDataInfo pageList(OShop shop, PageQuery pageQuery) {
         Integer userIdentity = SecurityUtils.getUserIdentity();
@@ -68,8 +73,7 @@ public class ShopController extends BaseController {
      */
     @PreAuthorize("@ss.hasPermi('shop:shop:query')")
     @GetMapping(value = "/shop/{id}")
-    public AjaxResult getInfo(@PathVariable("id") Long id)
-    {
+    public AjaxResult getInfo(@PathVariable("id") Long id) {
         return success(shopService.selectShopById(id));
     }
 
@@ -78,10 +82,13 @@ public class ShopController extends BaseController {
      */
     @PreAuthorize("@ss.hasPermi('shop:shop:add')")
     @PostMapping("/shop")
-    public AjaxResult add(@RequestBody OShop shop)
-    {
-
-        return toAjax(shopService.insertShop(shop));
+    public AjaxResult add(@RequestBody OShop shop) {
+        Integer userIdentity = SecurityUtils.getUserIdentity();
+        if (userIdentity == null) {
+            return AjaxResult.error("没有权限");
+        } else if (userIdentity == EnumUserType.MERCHANT.getIndex()) {
+            return toAjax(shopService.insertShop(shop));
+        }else return AjaxResult.error("没有权限");
     }
 
     /**
@@ -89,17 +96,16 @@ public class ShopController extends BaseController {
      */
     @PreAuthorize("@ss.hasPermi('shop:shop:edit')")
     @PutMapping("/shop")
-    public AjaxResult edit(@RequestBody OShop shop)
-    {
+    public AjaxResult edit(@RequestBody OShop shop) {
 //        if(shop.getId()==null) return AjaxResult.error("缺少参数：id");
+        Integer userIdentity = SecurityUtils.getUserIdentity();
+        if (userIdentity == null) {
+            return AjaxResult.error("没有权限");
+        } else if (userIdentity == EnumUserType.MERCHANT.getIndex()) {
+            shopService.updateShopById(shop);
+            return AjaxResult.success();
+        }else return AjaxResult.error("没有权限");
 
-        shopService.updateShopById(shop);
-//        try{
-//            erpPushHelper.shopSave(shopService.getById(shop.getId()));
-//        }catch (Exception x){
-//        }
-
-        return toAjax(1);
     }
 
     /**
@@ -107,41 +113,13 @@ public class ShopController extends BaseController {
      */
     @PreAuthorize("@ss.hasPermi('shop:shop:remove')")
     @DeleteMapping("/shop/{ids}")
-    public AjaxResult remove(@PathVariable Long[] ids)
-    {
-        return toAjax(shopService.deleteShopByIds(ids));
+    public AjaxResult remove(@PathVariable Long[] ids) {
+        Integer userIdentity = SecurityUtils.getUserIdentity();
+        if (userIdentity == null) {
+            return AjaxResult.error("没有权限");
+        } else if (userIdentity == EnumUserType.MERCHANT.getIndex()) {
+            return toAjax(shopService.deleteShopByIds(ids));
+        }else return AjaxResult.error("没有权限");
+
     }
-
-
-//    /**
-//     * 查询店铺列表logistics
-//     */
-//    @GetMapping("/logistics")
-//    public TableDataInfo logisticsList(Integer type, Integer shopId, PageQuery pageQuery)
-//    {
-//        PageResult<OLogisticsCompany> result = logisticsCompanyService.queryPageList(type, shopId, pageQuery);
-//        return getDataTable(result);
-//    }
-//    @GetMapping("/logistics_status")
-//    public TableDataInfo logisticsStatusList(Integer status, Integer shopType, Integer shopId)
-//    {
-//        return getDataTable(logisticsCompanyService.queryListByStatus(status,shopType, shopId));
-//    }
-//    @PutMapping("/logistics/updateStatus")
-//    public AjaxResult logisticsUpdateStatus(@RequestBody OLogisticsCompany company)
-//    {
-//        Integer newStatus = null;
-//        if(company.getStatus()==null || company.getStatus().intValue() ==0){
-//            newStatus = 1;
-//        }else{
-//            newStatus = 0;
-//        }
-//        return toAjax(logisticsCompanyService.updateStatus(company.getId(),newStatus));
-//    }
-//    @PostMapping("/logistics/add")
-//    public AjaxResult add(@RequestBody OLogisticsCompany company)
-//    {
-//        return toAjax(logisticsCompanyService.save(company));
-//    }
-
 }

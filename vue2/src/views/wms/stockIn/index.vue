@@ -495,12 +495,7 @@
 import { listStockIn, getWmsStockInEntry} from "@/api/wms/stockIn";
 import { listWarehouse,searchPosition } from "@/api/wms/warehouse";
 import { getUserProfile } from '@/api/system/user'
-import { pushJdCloudWarehousePurchase } from '@/api/cloud_warehouse/jd'
-
-import {listMyAllWarehouse} from "@/api/store/warehouse";
 import {pushCloudWarehousePurchase} from "@/api/cloud_warehouse";
-
-
 
 export default {
   name: "WmsStockInEntry",

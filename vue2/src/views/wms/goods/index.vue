@@ -221,7 +221,7 @@ import {getToken} from "@/utils/auth";
 import {MessageBox} from "element-ui";
 import {isRelogin} from "@/utils/request";
 import PopupSkuList from '@/views/goods/PopupSkuList.vue'
-import {listCloudWarehouse, listWarehouse} from '@/api/wms/warehouse'
+import { listWarehouse} from '@/api/wms/warehouse'
 import { listWarehouseGoodsItems,linkErpGoodsSku,addWarehouseGoods } from '@/api/wms/goods'
 
 import { getUserProfile } from '@/api/system/user'
@@ -230,7 +230,6 @@ import {pullJdCloudWarehouseGoodsItems} from "@/api/cloud_warehouse/jdl_erp";
 import {pullJdlGoodsItems} from "@/api/cloud_warehouse/jdl_isc";
 import {listShop} from "@/api/shop/shop";
 import {pullJkyGoodsItems, pushJkyGoodsItems} from "@/api/cloud_warehouse/jky";
-import {listMerchantCloudWarehouse, listMyAllWarehouse} from "@/api/store/warehouse";
 
 export default {
   name: "WarehouseGoodsList",
