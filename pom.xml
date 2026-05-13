@@ -3,12 +3,12 @@
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>cn.qihangerp</groupId>
-  <artifactId>stock-books</artifactId>
+  <artifactId>qihang-cloud-wms</artifactId>
   <version>1.0.1</version>
   <packaging>pom</packaging>
 
-  <name>qihang-stock-books</name>
-  <url>https://github.com/zeasin/qihang-stock-books.git</url>
+  <name>qihang-cloud-wms</name>
+  <url>https://github.com/zeasin/qihang-cloud-wms</url>
   <modules>
     <module>core</module>
     <module>api</module>
