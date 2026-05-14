@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.qihangerp.mapper.ShopGoodsSkuMapper">
+
+    <resultMap id="BaseResultMap" type="cn.qihangerp.model.entity.ShopGoodsSku">
+            <id property="id" column="id" jdbcType="BIGINT"/>
+            <result property="shopGoodsId" column="shop_goods_id" jdbcType="BIGINT"/>
+            <result property="merchantId" column="merchant_id" jdbcType="BIGINT"/>
+            <result property="shopId" column="shop_id" jdbcType="BIGINT"/>
+            <result property="shopType" column="shop_type" jdbcType="INTEGER"/>
+            <result property="productId" column="product_id" jdbcType="VARCHAR"/>
+            <result property="productTitle" column="product_title" jdbcType="VARCHAR"/>
+            <result property="outerProductId" column="outer_product_id" jdbcType="VARCHAR"/>
+            <result property="skuId" column="sku_id" jdbcType="VARCHAR"/>
+            <result property="outerSkuId" column="outer_sku_id" jdbcType="VARCHAR"/>
+            <result property="img" column="img" jdbcType="VARCHAR"/>
+            <result property="price" column="price" jdbcType="INTEGER"/>
+            <result property="stockNum" column="stock_num" jdbcType="INTEGER"/>
+            <result property="skuCode" column="sku_code" jdbcType="VARCHAR"/>
+            <result property="skuName" column="sku_name" jdbcType="VARCHAR"/>
+            <result property="status" column="status" jdbcType="INTEGER"/>
+            <result property="addTime" column="add_time" jdbcType="BIGINT"/>
+            <result property="modifyTime" column="modify_time" jdbcType="BIGINT"/>
+            <result property="skuAttrs" column="sku_attrs" jdbcType="VARCHAR"/>
+            <result property="stock" column="stock" jdbcType="INTEGER"/>
+            <result property="bindShipSku" column="bind_ship_sku" jdbcType="INTEGER"/>
+            <result property="erpGoodsId" column="erp_goods_id" jdbcType="BIGINT"/>
+            <result property="erpGoodsSkuId" column="erp_goods_sku_id" jdbcType="BIGINT"/>
+            <result property="createOn" column="create_on" jdbcType="TIMESTAMP"/>
+            <result property="updateOn" column="update_on" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,shop_goods_id,merchant_id,
+        shop_id,shop_type,product_id,
+        product_title,outer_product_id,sku_id,
+        outer_sku_id,img,price,
+        stock_num,sku_code,sku_name,
+        status,add_time,modify_time,sku_attrs,
+        stock,erp_goods_id,erp_goods_sku_id,
+        create_on,update_on,bind_ship_sku
+    </sql>
+
+
+</mapper>

@@ -22,7 +22,7 @@ import java.util.Set;
  * @author qihang
  */
 @RestController
-@RequestMapping("/system/user/profile")
+@RequestMapping("/api/sys-api/system/user/profile")
 public class SysProfileController extends BaseController
 {
     @Autowired

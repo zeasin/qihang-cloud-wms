@@ -325,8 +325,6 @@
       </div>
     </el-dialog>
 
-    <!-- 添加品对话框 -->
-    <PopupSkuList @data-from-select="handleDataFromPopup" :btn="2" ref="popup"></PopupSkuList>
   </div>
 </template>
 

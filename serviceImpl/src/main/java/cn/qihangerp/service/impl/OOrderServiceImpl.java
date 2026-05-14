@@ -43,9 +43,7 @@ public class OOrderServiceImpl extends ServiceImpl<OOrderMapper, OOrder>
 
     private final OOrderMapper orderMapper;
     private final OOrderItemMapper orderItemMapper;
-
-    private final OmsShopGoodsSkuMapper shopGoodsSkuMapper;
-
+    private final ShopGoodsSkuMapper shopGoodsSkuMapper;
     private final OGoodsMapper goodsMapper;
     private final OGoodsSkuMapper goodsSkuMapper;
 
@@ -345,9 +343,9 @@ public class OOrderServiceImpl extends ServiceImpl<OOrderMapper, OOrder>
             orderItem.setShopId(order.getShopId());
             orderItem.setShopType(order.getShopType());
             // 查询店铺商品sku
-            List<OmsShopGoodsSku> omsShopGoodsSkus = shopGoodsSkuMapper.selectList(new LambdaQueryWrapper<OmsShopGoodsSku>()
-                    .eq(OmsShopGoodsSku::getSkuId, orderItem.getSkuId())
-                    .eq(OmsShopGoodsSku::getShopId, orderItem.getShopId()));
+            List<ShopGoodsSku> omsShopGoodsSkus = shopGoodsSkuMapper.selectList(new LambdaQueryWrapper<ShopGoodsSku>()
+                    .eq(ShopGoodsSku::getSkuId, orderItem.getSkuId())
+                    .eq(ShopGoodsSku::getShopId, orderItem.getShopId()));
             if(!omsShopGoodsSkus.isEmpty()){
                 orderItem.setGoodsId(omsShopGoodsSkus.get(0).getErpGoodsId());
                 orderItem.setGoodsSkuId(omsShopGoodsSkus.get(0).getErpGoodsSkuId());
