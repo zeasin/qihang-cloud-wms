@@ -26,12 +26,6 @@
           @keyup.enter.native="handleQuery"
         />
       </el-form-item>
-      <el-form-item label="是否支持代发" prop="isShipper">
-        <el-select v-model="queryParams.isShipper" clearable  placeholder="是否支持订单代发" @change="handleQuery">
-          <el-option label="支持订单代发" value="1"></el-option>
-          <el-option label="不支持订单代发" value="0"></el-option>
-        </el-select>
-      </el-form-item>
       <el-form-item>
         <el-button type="primary" icon="el-icon-search" size="mini" @click="handleQuery">搜索</el-button>
         <el-button icon="el-icon-refresh" size="mini" @click="resetQuery">重置</el-button>
@@ -58,18 +52,6 @@
       <el-table-column label="ID" align="center" prop="id" width="60px"/>
       <el-table-column label="供应商名称" align="left" prop="name" />
       <el-table-column label="供应商编码" align="left" prop="number" />
-      <el-table-column label="是否支持订单代发" align="center" prop="isShipper" width="150">
-        <template slot-scope="scope">
-          <el-tag v-if="scope.row.isShipper===1">支持代发</el-tag>
-          <el-tag v-else>不支持代发</el-tag>
-        </template>
-      </el-table-column>
-      <el-table-column label="来源" align="center" prop="isShipper" width="150">
-        <template slot-scope="scope">
-          <el-tag v-if="scope.row.erpSupplierId===0">自己添加</el-tag>
-          <el-tag v-else>总部分配</el-tag>
-        </template>
-      </el-table-column>
       <el-table-column label="社会信用代码" align="left" prop="usci" />
       <el-table-column label="营业执照" align="center" prop="image" width="100">
         <template slot-scope="scope">
@@ -129,12 +111,6 @@
         </el-form-item>
         <el-form-item :label="$t('system.vendor.code')" prop="number">
           <el-input v-model="form.number" :placeholder="$t('system.vendor.inputCode')" style="width: 230px" />
-        </el-form-item>
-        <el-form-item label="是否支持订单代发" prop="isShipper">
-          <el-select v-model="form.isShipper" clearable  placeholder="是否支持订单代发" @change="handleQuery">
-            <el-option label="支持订单代发" value="1"></el-option>
-            <el-option label="不支持订单代发" value="0"></el-option>
-          </el-select>
         </el-form-item>
         <el-form-item label="联系人" prop="linkMan">
           <el-input v-model="form.linkMan" placeholder="请输入联系人" />

@@ -44,17 +44,7 @@ public class OOrderServiceImpl extends ServiceImpl<OOrderMapper, OOrder>
     private final OOrderMapper orderMapper;
     private final OOrderItemMapper orderItemMapper;
     private final ShopGoodsSkuMapper shopGoodsSkuMapper;
-    private final OGoodsMapper goodsMapper;
-    private final OGoodsSkuMapper goodsSkuMapper;
-
-    private final OGoodsSupplierMapper supplierMapper;
-
-    private final OShipmentMapper shipmentMapper;
-    private final OShipmentItemMapper shipmentItemMapper;
-
     private final OShopMapper oShopMapper;
-
-
     private final ErpStockOutMapper outMapper;
     private final ErpStockOutItemMapper outItemMapper;
 

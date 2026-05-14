@@ -17,7 +17,7 @@ import java.util.Date;
 
 @AllArgsConstructor
 @RestController
-@RequestMapping("/goods_category")
+@RequestMapping("/api/erp-api/goods_category")
 public class GoodsCategoryController  extends BaseController {
     private final OGoodsCategoryService categoryService;
     private final OGoodsCategoryAttributeService categoryAttributeService;

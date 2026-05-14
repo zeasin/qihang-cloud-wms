@@ -22,7 +22,7 @@ import java.util.List;
  */
 @AllArgsConstructor
 @RestController
-@RequestMapping("/goods")
+@RequestMapping("/api/erp-api/goods")
 public class GoodsController extends BaseController
 {
     private final OGoodsService goodsService;
