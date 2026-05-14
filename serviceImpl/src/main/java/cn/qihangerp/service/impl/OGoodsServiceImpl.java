@@ -2,10 +2,13 @@ package cn.qihangerp.service.impl;
 
 import cn.qihangerp.model.bo.GoodsAddBo;
 import cn.qihangerp.model.bo.GoodsAddSkuBo;
+import cn.qihangerp.model.bo.GoodsSkuNewAddBo;
 import cn.qihangerp.model.entity.OGoods;
 import cn.qihangerp.model.entity.OGoodsInventory;
 import cn.qihangerp.model.entity.OGoodsSku;
 import cn.qihangerp.model.entity.OGoodsSkuAttr;
+import cn.qihangerp.model.query.GoodsQuery;
+import cn.qihangerp.model.query.GoodsSkuQuery;
 import cn.qihangerp.model.vo.GoodsSpecListVo;
 import cn.qihangerp.mapper.OGoodsInventoryMapper;
 import cn.qihangerp.mapper.OGoodsMapper;
@@ -43,10 +46,10 @@ public class OGoodsServiceImpl extends ServiceImpl<OGoodsMapper, OGoods>
     @Override
     public PageResult<OGoodsSku> querySkuPageList(OGoodsSku bo, PageQuery pageQuery) {
         LambdaQueryWrapper<OGoodsSku> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(bo.getStatus()!=null, OGoodsSku::getStatus,bo.getStatus());
-        queryWrapper.eq(bo.getOuterErpSkuId()!=null,OGoodsSku::getOuterErpSkuId,bo.getOuterErpSkuId());
-        queryWrapper.eq(bo.getOuterErpGoodsId()!=null,OGoodsSku::getOuterErpGoodsId,bo.getOuterErpGoodsId());
-        queryWrapper.eq(StringUtils.hasText(bo.getSkuCode()),OGoodsSku::getSkuCode,bo.getSkuCode());
+        queryWrapper.eq(bo.getStatus() != null, OGoodsSku::getStatus, bo.getStatus());
+        queryWrapper.eq(bo.getOuterErpSkuId() != null, OGoodsSku::getOuterErpSkuId, bo.getOuterErpSkuId());
+        queryWrapper.eq(bo.getOuterErpGoodsId() != null, OGoodsSku::getOuterErpGoodsId, bo.getOuterErpGoodsId());
+        queryWrapper.eq(StringUtils.hasText(bo.getSkuCode()), OGoodsSku::getSkuCode, bo.getSkuCode());
         Page<OGoodsSku> pages = skuMapper.selectPage(pageQuery.build(), queryWrapper);
 
         return PageResult.build(pages);
@@ -55,23 +58,23 @@ public class OGoodsServiceImpl extends ServiceImpl<OGoodsMapper, OGoods>
     @Override
     public PageResult<OGoods> queryPageList(OGoods bo, PageQuery pageQuery) {
         LambdaQueryWrapper<OGoods> queryWrapper = new LambdaQueryWrapper<OGoods>();
-        queryWrapper.eq(bo.getStatus()!=null, OGoods::getStatus,bo.getStatus());
-        queryWrapper.eq(bo.getCategoryId()!=null,OGoods::getCategoryId,bo.getCategoryId());
-        queryWrapper.eq(bo.getSupplierId()!=null,OGoods::getSupplierId,bo.getSupplierId());
-        queryWrapper.eq(StringUtils.hasText(bo.getGoodsNum()),OGoods::getGoodsNum,bo.getGoodsNum());
-        queryWrapper.like(StringUtils.hasText(bo.getName()),OGoods::getName,bo.getName());
+        queryWrapper.eq(bo.getStatus() != null, OGoods::getStatus, bo.getStatus());
+        queryWrapper.eq(bo.getCategoryId() != null, OGoods::getCategoryId, bo.getCategoryId());
+        queryWrapper.eq(bo.getSupplierId() != null, OGoods::getSupplierId, bo.getSupplierId());
+        queryWrapper.eq(StringUtils.hasText(bo.getGoodsNum()), OGoods::getGoodsNum, bo.getGoodsNum());
+        queryWrapper.like(StringUtils.hasText(bo.getName()), OGoods::getName, bo.getName());
         Page<OGoods> pages = goodsMapper.selectPage(pageQuery.build(), queryWrapper);
-        if(pages.getRecords()!=null){
-            for(OGoods g:pages.getRecords()){
-                g.setSkuList(skuMapper.selectList(new LambdaQueryWrapper<OGoodsSku>().eq(OGoodsSku::getGoodsId,g.getId())));
+        if (pages.getRecords() != null) {
+            for (OGoods g : pages.getRecords()) {
+                g.setSkuList(skuMapper.selectList(new LambdaQueryWrapper<OGoodsSku>().eq(OGoodsSku::getGoodsId, g.getId())));
             }
         }
         return PageResult.build(pages);
     }
 
     @Override
-    public List<GoodsSpecListVo> searchGoodsSpec(String keyword) {
-        return goodsMapper.searchGoodsSpec(keyword);
+    public List<GoodsSpecListVo> searchGoodsSpec(Long merchantId, String keyword) {
+        return goodsMapper.searchGoodsSpec(merchantId, keyword);
     }
 
     @Override
@@ -87,14 +90,15 @@ public class OGoodsServiceImpl extends ServiceImpl<OGoodsMapper, OGoods>
 
     @Transactional
     @Override
-    public ResultVo<Long> insertGoods(String userName , GoodsAddBo bo)
-    {
-        if(StringUtils.isEmpty(bo.getNumber())) return ResultVo.error(500,"商品编码不能为空");
+    public ResultVo<Long> insertGoods(String userName, GoodsAddBo bo) {
+        if (StringUtils.isEmpty(bo.getNumber())) return ResultVo.error(500, "商品编码不能为空");
         // 查询编码是否存在
-        List<OGoods> goodsList = goodsMapper.selectList(new LambdaQueryWrapper<OGoods>().eq(OGoods::getGoodsNum,bo.getNumber()));
-        if(goodsList!=null && goodsList.size()>0) return ResultVo.error(-1,"商品编码已存在");// return -1;
+        List<OGoods> goodsList = goodsMapper.selectList(new LambdaQueryWrapper<OGoods>().eq(OGoods::getGoodsNum, bo.getNumber()));
+        if (goodsList != null && goodsList.size() > 0) return ResultVo.error(-1, "商品编码已存在");// return -1;
 
         OGoods goods = new OGoods();
+        goods.setMerchantId(bo.getMerchantId());
+        goods.setShopId(0L);
         goods.setGoodsNum(bo.getNumber());
         goods.setName(bo.getName());
         goods.setImage(bo.getImage());
@@ -131,36 +135,38 @@ public class OGoodsServiceImpl extends ServiceImpl<OGoodsMapper, OGoods>
         goodsMapper.insert(goods);
 
         // 2、添加规格表erp_goods_spec
-        for (GoodsAddSkuBo skuBo:bo.getSpecList()) {
+        for (GoodsAddSkuBo skuBo : bo.getSpecList()) {
             OGoodsSku spec = new OGoodsSku();
             spec.setGoodsId(goods.getId());
+            spec.setMerchantId(goods.getMerchantId());
+            spec.setShopId(goods.getShopId());
             spec.setOuterErpGoodsId(bo.getOuterErpGoodsId());
             spec.setOuterErpSkuId(skuBo.getOuterErpSkuId());
             spec.setGoodsName(bo.getName());
-            String skuName ="";
-            if(StringUtils.hasText(skuBo.getColorValue()))
-                skuName+= skuBo.getColorValue();
-            if(StringUtils.hasText(skuBo.getSizeValue()))
-                skuName+= " "+ skuBo.getSizeValue();
-            if(StringUtils.hasText(skuBo.getStyleValue()))
-                skuName+= " "+ skuBo.getStyleValue();
+            String skuName = "";
+            if (StringUtils.hasText(skuBo.getColorValue()))
+                skuName += skuBo.getColorValue();
+            if (StringUtils.hasText(skuBo.getSizeValue()))
+                skuName += " " + skuBo.getSizeValue();
+            if (StringUtils.hasText(skuBo.getStyleValue()))
+                skuName += " " + skuBo.getStyleValue();
 
             spec.setSkuName(skuName);
             spec.setSkuCode(skuBo.getSpecNum());
             spec.setColorId(skuBo.getColorId());
             spec.setColorValue(skuBo.getColorValue());
-            if(bo.getColorImages()!=null && StringUtils.hasText(bo.getColorImages().get(skuBo.getColorId()))){
+            if (bo.getColorImages() != null && StringUtils.hasText(bo.getColorImages().get(skuBo.getColorId()))) {
                 spec.setColorImage(bo.getColorImages().get(skuBo.getColorId()));
-            }else {
+            } else {
                 spec.setColorImage(goods.getImage());
             }
             spec.setSizeId(skuBo.getSizeId());
             spec.setSizeValue(skuBo.getSizeValue());
             spec.setStyleId(skuBo.getStyleId());
             spec.setStyleValue(skuBo.getStyleValue());
-            if(bo.getPurPrice() == null){
+            if (bo.getPurPrice() == null) {
                 spec.setPurPrice(goods.getPurPrice());
-            }else spec.setPurPrice(bo.getPurPrice());
+            } else spec.setPurPrice(bo.getPurPrice());
             spec.setStatus(1);
 
             skuMapper.insert(spec);
@@ -179,8 +185,8 @@ public class OGoodsServiceImpl extends ServiceImpl<OGoodsMapper, OGoods>
         }
 
         // 3、添加规格属性表erp_goods_spec_attr
-        if(bo.getColorValues()!=null) {
-            for (Long val:bo.getColorValues()) {
+        if (bo.getColorValues() != null) {
+            for (Long val : bo.getColorValues()) {
                 OGoodsSkuAttr specAttr = new OGoodsSkuAttr();
                 specAttr.setGoodsId(goods.getId());
                 specAttr.setType("color");
@@ -191,8 +197,8 @@ public class OGoodsServiceImpl extends ServiceImpl<OGoodsMapper, OGoods>
             }
 
         }
-        if(bo.getSizeValues()!=null) {
-            for (Long val:bo.getSizeValues()) {
+        if (bo.getSizeValues() != null) {
+            for (Long val : bo.getSizeValues()) {
                 OGoodsSkuAttr specAttr = new OGoodsSkuAttr();
                 specAttr.setGoodsId(goods.getId());
                 specAttr.setType("size");
@@ -203,8 +209,8 @@ public class OGoodsServiceImpl extends ServiceImpl<OGoodsMapper, OGoods>
             }
 
         }
-        if(bo.getColorValues()!=null) {
-            for (Long val:bo.getColorValues()) {
+        if (bo.getColorValues() != null) {
+            for (Long val : bo.getColorValues()) {
                 OGoodsSkuAttr specAttr = new OGoodsSkuAttr();
                 specAttr.setGoodsId(goods.getId());
                 specAttr.setType("style");
@@ -219,9 +225,65 @@ public class OGoodsServiceImpl extends ServiceImpl<OGoodsMapper, OGoods>
         return ResultVo.success(Long.parseLong(goods.getId()));
     }
 
+    @Transactional
     @Override
-    public int updateGoods(OGoods goods) {
-        return goodsMapper.updateById(goods);
+    public ResultVo<Long> insertGoodsSku(String userName, GoodsSkuNewAddBo bo) {
+        OGoods goods = goodsMapper.selectById(bo.getId());
+        if (goods == null) return ResultVo.error("商品不存在");
+        // 查询编码是否存在
+
+        // 2、添加规格表erp_goods_spec
+        for (GoodsAddSkuBo skuBo : bo.getSpecList()) {
+            List<OGoodsSku> oGoodsSkus = skuMapper.selectList(new LambdaQueryWrapper<OGoodsSku>().eq(OGoodsSku::getSkuCode, skuBo.getSpecNum()));
+            if (!oGoodsSkus.isEmpty()) return ResultVo.error("sku编码已存在");
+            OGoodsSku spec = new OGoodsSku();
+            spec.setPriceType(goods.getPriceType());
+            spec.setMerchantId(goods.getMerchantId());
+            spec.setGoodsId(bo.getId().toString());
+            spec.setOuterErpGoodsId(goods.getOuterErpGoodsId());
+            spec.setOuterErpSkuId(skuBo.getOuterErpSkuId());
+            spec.setGoodsName(goods.getName());
+            spec.setGoodsNum(goods.getGoodsNum());
+            String skuName = "";
+            if (StringUtils.hasText(skuBo.getColorValue()))
+                skuName += skuBo.getColorValue();
+            if (StringUtils.hasText(skuBo.getSizeValue()))
+                skuName += " " + skuBo.getSizeValue();
+            if (StringUtils.hasText(skuBo.getStyleValue()))
+                skuName += " " + skuBo.getStyleValue();
+            spec.setUnit("");
+            spec.setSkuName(skuName);
+            spec.setSkuCode(skuBo.getSpecNum());
+            spec.setBarCode("");
+            spec.setColorId(skuBo.getColorId());
+            spec.setColorValue(skuBo.getColorValue());
+            if (bo.getColorImages() != null && StringUtils.hasText(bo.getColorImages().get(skuBo.getColorId()))) {
+                spec.setColorImage(bo.getColorImages().get(skuBo.getColorId()));
+            } else {
+                spec.setColorImage(goods.getImage());
+            }
+            spec.setSizeId(skuBo.getSizeId());
+            spec.setSizeValue(skuBo.getSizeValue());
+            spec.setStyleId(skuBo.getStyleId());
+            spec.setStyleValue(skuBo.getStyleValue());
+            if (skuBo.getPurPrice() != null) {
+                spec.setPurPrice(skuBo.getPurPrice());
+            } else spec.setPurPrice(goods.getPurPrice());
+            spec.setRetailPrice(goods.getRetailPrice());
+            spec.setStatus(1);
+            spec.setInventoryMode(goods.getInventoryMode());
+            spec.setShipType(goods.getShipType());
+            spec.setWeight1(0.0);
+            spec.setWeight2(0.0);
+            spec.setWeight3(0.0);
+            skuMapper.insert(spec);
+        }
+        return ResultVo.success(Long.parseLong(goods.getId()));
+    }
+    @Override
+    public ResultVo updateGoods(OGoods goods) {
+         goodsMapper.updateById(goods);
+         return ResultVo.success();
     }
 
     @Transactional
@@ -250,7 +312,7 @@ public class OGoodsServiceImpl extends ServiceImpl<OGoodsMapper, OGoods>
     public int insertGoodsSku(OGoodsSku goodsSku) {
         // 是否存在
         List<OGoodsSku> oGoodsSkus = skuMapper.selectList(new LambdaQueryWrapper<OGoodsSku>().eq(OGoodsSku::getOuterErpSkuId, goodsSku.getOuterErpSkuId()).or().eq(OGoodsSku::getSkuCode, goodsSku.getSkuCode()));
-        if(oGoodsSkus==null || oGoodsSkus.size() ==0) {
+        if (oGoodsSkus == null || oGoodsSkus.size() == 0) {
             // 查询goodsId外键
             if (StringUtils.hasText(goodsSku.getOuterErpGoodsId())) {
                 List<OGoods> oGoods = goodsMapper.selectList(new LambdaQueryWrapper<OGoods>().eq(OGoods::getOuterErpGoodsId, goodsSku.getOuterErpGoodsId()));
@@ -267,7 +329,7 @@ public class OGoodsServiceImpl extends ServiceImpl<OGoodsMapper, OGoods>
         return -1;
     }
 
-//    @Override
+    //    @Override
 //    public int saveGoodsSku(GoodsSkuAddBo addBo) {
 //        // 是否存在
 //        List<OGoodsSku> oGoodsSkus = skuMapper.selectList(new LambdaQueryWrapper<OGoodsSku>().eq(OGoodsSku::getOuterErpSkuId, addBo.getErpSkuId()));
@@ -315,6 +377,46 @@ public class OGoodsServiceImpl extends ServiceImpl<OGoodsMapper, OGoods>
 //        }
 //        return 1;
 //    }
+    @Override
+    public PageResult<OGoods> queryMerchantPageList(Long merchantId, GoodsQuery bo, PageQuery pageQuery) {
+        LambdaQueryWrapper<OGoods> queryWrapper = new LambdaQueryWrapper<OGoods>();
+        queryWrapper.eq(bo.getStatus() != null, OGoods::getStatus, bo.getStatus());
+        queryWrapper.eq(bo.getCategoryId() != null, OGoods::getCategoryId, bo.getCategoryId());
+        queryWrapper.eq(bo.getSupplierId() != null, OGoods::getSupplierId, bo.getSupplierId());
+        queryWrapper.eq(bo.getBrandId() != null, OGoods::getBrandId, bo.getBrandId());
+        queryWrapper.eq(StringUtils.hasText(bo.getGoodsNum()), OGoods::getGoodsNum, bo.getGoodsNum());
+        queryWrapper.eq(StringUtils.hasText(bo.getOuterErpGoodsId()), OGoods::getOuterErpGoodsId, bo.getOuterErpGoodsId());
+        queryWrapper.like(StringUtils.hasText(bo.getName()), OGoods::getName, bo.getName());
+        queryWrapper.eq(OGoods::getMerchantId, merchantId);
+
+        Page<OGoods> pages = goodsMapper.selectPage(pageQuery.build(), queryWrapper);
+        if (pages.getRecords() != null) {
+            for (OGoods g : pages.getRecords()) {
+                g.setSkuList(skuMapper.selectList(new LambdaQueryWrapper<OGoodsSku>().eq(OGoodsSku::getGoodsId, g.getId())));
+            }
+        }
+        return PageResult.build(pages);
+    }
+
+    @Override
+    public PageResult<OGoodsSku> querySkuMerchantPageList(Long merchantId, GoodsSkuQuery bo, PageQuery pageQuery) {
+        LambdaQueryWrapper<OGoodsSku> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(bo.getId() != null, OGoodsSku::getId, bo.getId());
+        queryWrapper.eq(bo.getGoodsId() != null, OGoodsSku::getGoodsId, bo.getGoodsId());
+        queryWrapper.like(StringUtils.hasText(bo.getGoodsNum()), OGoodsSku::getGoodsNum, bo.getGoodsNum());
+        queryWrapper.eq(bo.getStatus() != null, OGoodsSku::getStatus, bo.getStatus());
+        queryWrapper.eq(StringUtils.hasText(bo.getOuterErpSkuId()), OGoodsSku::getOuterErpSkuId, bo.getOuterErpSkuId());
+        queryWrapper.eq(StringUtils.hasText(bo.getOuterErpGoodsId()), OGoodsSku::getOuterErpGoodsId, bo.getOuterErpGoodsId());
+        queryWrapper.eq(StringUtils.hasText(bo.getSellerId()), OGoodsSku::getSellerId, bo.getSellerId());
+        queryWrapper.eq(StringUtils.hasText(bo.getSellerBrandId()), OGoodsSku::getSellerBrandId, bo.getSellerBrandId());
+        queryWrapper.like(StringUtils.hasText(bo.getSkuCode()), OGoodsSku::getSkuCode, bo.getSkuCode());
+        queryWrapper.eq(StringUtils.hasText(bo.getBarCode()), OGoodsSku::getBarCode, bo.getBarCode());
+        queryWrapper.like(StringUtils.hasText(bo.getGoodsName()), OGoodsSku::getGoodsName, bo.getGoodsName());
+        queryWrapper.like(StringUtils.hasText(bo.getSkuName()), OGoodsSku::getSkuName, bo.getSkuName());
+        queryWrapper.eq(OGoodsSku::getMerchantId, merchantId);
+        Page<OGoodsSku> pages = skuMapper.selectPage(pageQuery.build(), queryWrapper);
+        return PageResult.build(pages);
+    }
 }
 
 

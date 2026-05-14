@@ -2,18 +2,15 @@ package cn.qihangerp.mapper;
 
 import cn.qihangerp.model.entity.OGoodsSku;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import org.apache.ibatis.annotations.Param;
-
-import java.util.List;
 
 /**
-* @author TW
-* @description 针对表【o_goods_sku(商品规格库存管理)】的数据库操作Mapper
-* @createDate 2024-03-11 14:24:49
-* @Entity cn.qihangerp.model.entity.OGoodsSku
+* @author qilip
+* @description 针对表【o_goods_sku(OMS商品SKU表)】的数据库操作Mapper
+* @createDate 2025-07-11 14:29:50
+* @Entity cn.qihangerp.module.domain.OGoodsSku
 */
 public interface OGoodsSkuMapper extends BaseMapper<OGoodsSku> {
-    List<OGoodsSku> getGoodsSpecAndStockByCode(@Param("warehouseId") Long warehouseId, @Param("code") String code);
+
 }
 
 

@@ -4,8 +4,11 @@ import cn.qihangerp.common.PageQuery;
 import cn.qihangerp.common.PageResult;
 import cn.qihangerp.common.ResultVo;
 import cn.qihangerp.model.bo.GoodsAddBo;
+import cn.qihangerp.model.bo.GoodsSkuNewAddBo;
 import cn.qihangerp.model.entity.OGoods;
 import cn.qihangerp.model.entity.OGoodsSku;
+import cn.qihangerp.model.query.GoodsQuery;
+import cn.qihangerp.model.query.GoodsSkuQuery;
 import cn.qihangerp.model.vo.GoodsSpecListVo;
 import com.baomidou.mybatisplus.extension.service.IService;
 import java.util.List;
@@ -20,7 +23,7 @@ public interface OGoodsService extends IService<OGoods> {
     PageResult<OGoodsSku> querySkuPageList(OGoodsSku bo, PageQuery pageQuery);
     PageResult<OGoods> queryPageList(OGoods bo, PageQuery pageQuery);
 
-    List<GoodsSpecListVo> searchGoodsSpec(String keyword);
+    List<GoodsSpecListVo> searchGoodsSpec(Long merchantId,String keyword);
     List<OGoods> selectGoodsList(OGoods goods);
     OGoods selectGoodsById(Long id);
     /**
@@ -30,14 +33,14 @@ public interface OGoodsService extends IService<OGoods> {
      * @return 结果
      */
     public ResultVo<Long> insertGoods(String userName , GoodsAddBo goods);
-
+    ResultVo<Long> insertGoodsSku(String userName , GoodsSkuNewAddBo goods);
     /**
      * 修改商品管理
      *
      * @param goods 商品管理
      * @return 结果
      */
-    public int updateGoods(OGoods goods);
+    ResultVo updateGoods(OGoods goods);
 
     /**
      * 批量删除商品管理
@@ -50,4 +53,13 @@ public interface OGoodsService extends IService<OGoods> {
     int insertGoodsSku(OGoodsSku goodsSku);
 //    int saveGoodsSku(GoodsSkuAddBo addBo);
 //    int batchSaveGoodsSku(List<GoodsSkuAddBo> list);
+    /**
+     * 查询商户商品列表
+     * @param bo
+     * @param pageQuery
+     * @return
+     */
+    PageResult<OGoods> queryMerchantPageList(Long merchantId, GoodsQuery bo, PageQuery pageQuery);
+
+    PageResult<OGoodsSku> querySkuMerchantPageList(Long merchantId, GoodsSkuQuery bo, PageQuery pageQuery);
 }

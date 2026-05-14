@@ -1,6 +1,6 @@
 <template>
   <div class="app-container">
-    <el-form :model="queryParams" ref="queryForm" size="small" :inline="true" v-show="showSearch" label-width="106px">
+    <el-form v-show="showSearch" ref="queryForm" :model="queryParams" size="small" :inline="true" label-width="106px">
       <el-form-item label="供应商名称" prop="name">
         <el-input
           v-model="queryParams.name"
@@ -40,22 +40,21 @@
           icon="el-icon-plus"
           size="mini"
           @click="handleAdd"
-
         >新增供应商</el-button>
       </el-col>
 
-      <right-toolbar :showSearch.sync="showSearch" @queryTable="getList"></right-toolbar>
+      <right-toolbar :show-search.sync="showSearch" @queryTable="getList" />
     </el-row>
 
     <el-table v-loading="loading" :data="supplierList" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55" align="center" />
-      <el-table-column label="ID" align="center" prop="id" width="60px"/>
+      <el-table-column label="ID" align="center" prop="id" width="60px" />
       <el-table-column label="供应商名称" align="left" prop="name" />
       <el-table-column label="供应商编码" align="left" prop="number" />
       <el-table-column label="社会信用代码" align="left" prop="usci" />
       <el-table-column label="营业执照" align="center" prop="image" width="100">
         <template slot-scope="scope">
-          <image-preview :src="scope.row.bl" :width="50" :height="50"/>
+          <image-preview :src="scope.row.bl" :width="50" :height="50" />
         </template>
       </el-table-column>
 
@@ -64,14 +63,14 @@
       <el-table-column label="联系电话" align="left" prop="contact" />
       <el-table-column label="联系地址" align="left" prop="address" />
 
-<!--      <el-table-column label="职位" align="left" prop="place" />-->
-<!--      <el-table-column label="登录账户" align="left" prop="loginName" />-->
+      <!--      <el-table-column label="职位" align="left" prop="place" />-->
+      <!--      <el-table-column label="登录账户" align="left" prop="loginName" />-->
       <el-table-column label="备注" align="center" prop="remark" />
-<!--      <el-table-column label="省" align="center" prop="province" />-->
-<!--      <el-table-column label="市" align="center" prop="city" />-->
-<!--      <el-table-column label="区县" align="center" prop="county" />-->
-<!--      <el-table-column label="拼音" align="center" prop="pinYin" />-->
-<!--      <el-table-column label="分管采购员" align="center" prop="purchaserName" />-->
+      <!--      <el-table-column label="省" align="center" prop="province" />-->
+      <!--      <el-table-column label="市" align="center" prop="city" />-->
+      <!--      <el-table-column label="区县" align="center" prop="county" />-->
+      <!--      <el-table-column label="拼音" align="center" prop="pinYin" />-->
+      <!--      <el-table-column label="分管采购员" align="center" prop="purchaserName" />-->
       <el-table-column label="创建时间" align="center" prop="createTime" width="180">
         <template slot-scope="scope">
           <span>{{ parseTime(scope.row.createTime) }}</span>
@@ -79,13 +78,15 @@
       </el-table-column>
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template slot-scope="scope">
-          <el-button v-if="scope.row.erpSupplierId===0"
+          <el-button
+            v-if="scope.row.erpSupplierId===0"
             size="mini"
             type="text"
             icon="el-icon-edit"
             @click="handleUpdate(scope.row)"
           >修改</el-button>
-          <el-button v-if="scope.row.erpSupplierId===0"
+          <el-button
+            v-if="scope.row.erpSupplierId===0"
             size="mini"
             type="text"
             icon="el-icon-delete"
@@ -137,13 +138,15 @@
           <el-input v-model="form.usci" placeholder="请输入社会信用代码" />
         </el-form-item>
         <el-form-item label="营业执照" prop="bl">
-          <image-upload v-model="form.bl" :limit="1"/>
+          <image-upload v-model="form.bl" :limit="1" />
         </el-form-item>
         <el-form-item label="营业执照有效期" prop="orderTime">
-          <el-date-picker clearable
-                          v-model="form.blPeriod" value-format="yyyy-MM-dd"
-                          type="date">
-          </el-date-picker>
+          <el-date-picker
+            v-model="form.blPeriod"
+            clearable
+            value-format="yyyy-MM-dd"
+            type="date"
+          />
         </el-form-item>
         <el-form-item label="法人" prop="blFaren">
           <el-input v-model="form.blFaren" placeholder="请输入法人" />
@@ -158,9 +161,9 @@
           <el-input v-model="form.bankAccount" placeholder="请输入开户银行账号" />
         </el-form-item>
 
-<!--        <el-form-item label="拼音" prop="pinYin">-->
-<!--          <el-input v-model="form.pinYin" placeholder="请输入拼音" />-->
-<!--        </el-form-item>-->
+        <!--        <el-form-item label="拼音" prop="pinYin">-->
+        <!--          <el-input v-model="form.pinYin" placeholder="请输入拼音" />-->
+        <!--        </el-form-item>-->
         <el-form-item label="分管采购员" prop="purchaserName">
           <el-input v-model="form.purchaserName" placeholder="请输入分管采购员" />
         </el-form-item>
@@ -174,15 +177,14 @@
       </div>
     </el-dialog>
 
-
   </div>
 </template>
 
 <script>
-import { listSupplier, getSupplier, delSupplier, addSupplier, updateSupplier} from "@/api/goods/supplier";
+import { listSupplier, getSupplier, delSupplier, addSupplier, updateSupplier } from '@/api/goods/supplier'
 
 export default {
-  name: "Supplier",
+  name: 'Supplier',
   data() {
     return {
       // 遮罩层
@@ -201,7 +203,7 @@ export default {
       supplierList: [],
       merchantList: [],
       // 弹出层标题
-      title: "",
+      title: '',
       // 是否显示弹出层
       open: false,
       openPwd: false,
@@ -232,52 +234,52 @@ export default {
       },
       // 表单参数
       form: {
-        id:null,
-        isShipper:null,
+        id: null,
+        isShipper: null,
         merchantIds: null,
-        loginName:null,
-        loginPwd:null
+        loginName: null,
+        loginPwd: null
       },
       // 表单校验
       rules: {
-        name: [{ required: true, message: "不能为空", trigger: "blur" }],
-        number: [{ required: true, message: "不能为空", trigger: "blur" }],
-        isShipper: [{ required: true, message: "不能为空", trigger: "blur" }],
-        linkMan: [{ required: true, message: "不能为空", trigger: "blur" }],
-        contact: [{ required: true, message: "不能为空", trigger: "blur" }],
-        address: [{ required: true, message: "不能为空", trigger: "blur" }],
+        name: [{ required: true, message: '不能为空', trigger: 'blur' }],
+        number: [{ required: true, message: '不能为空', trigger: 'blur' }],
+        isShipper: [{ required: true, message: '不能为空', trigger: 'blur' }],
+        linkMan: [{ required: true, message: '不能为空', trigger: 'blur' }],
+        contact: [{ required: true, message: '不能为空', trigger: 'blur' }],
+        address: [{ required: true, message: '不能为空', trigger: 'blur' }]
       },
       pwdrules: {
         loginName: [
-          { required: true, message: "登录名不能为空", trigger: "blur" },
+          { required: true, message: '登录名不能为空', trigger: 'blur' },
           { min: 6, max: 15, message: '登录名长度必须介于 6 和 15 之间', trigger: 'blur' }
         ],
         loginPwd: [
-          { required: true, message: "登录密码不能为空", trigger: "blur" },
+          { required: true, message: '登录密码不能为空', trigger: 'blur' },
           { min: 8, max: 32, message: '登录密码长度必须介于 8 和 32 之间', trigger: 'blur' }
-        ],
+        ]
       }
-    };
+    }
   },
   created() {
-    this.getList();
+    this.getList()
   },
   methods: {
     /** 查询供应商管理列表 */
     getList() {
-      this.loading = true;
+      this.loading = true
       listSupplier(this.queryParams).then(response => {
-        this.supplierList = response.rows;
-        this.total = response.total;
-        this.loading = false;
-      });
+        this.supplierList = response.rows
+        this.total = response.total
+        this.loading = false
+      })
     },
     // 取消按钮
     cancel() {
-      this.open = false;
-      this.openPwd = false;
-      this.shareOpen = false;
-      this.reset();
+      this.open = false
+      this.openPwd = false
+      this.shareOpen = false
+      this.reset()
     },
     // 表单重置
     reset() {
@@ -304,75 +306,75 @@ export default {
         purchaserName: null,
         createTime: null,
         isShipper: null,
-        loginName:null,
-        loginPwd:null
-      };
-      this.resetForm("form");
+        loginName: null,
+        loginPwd: null
+      }
+      this.resetForm('form')
     },
     /** 搜索按钮操作 */
     handleQuery() {
-      this.queryParams.pageNum = 1;
-      this.getList();
+      this.queryParams.pageNum = 1
+      this.getList()
     },
     /** 重置按钮操作 */
     resetQuery() {
-      this.resetForm("queryForm");
-      this.handleQuery();
+      this.resetForm('queryForm')
+      this.handleQuery()
     },
     // 多选框选中数据
     handleSelectionChange(selection) {
       this.ids = selection.map(item => item.id)
-      this.single = selection.length!==1
+      this.single = selection.length !== 1
       this.multiple = !selection.length
     },
     /** 新增按钮操作 */
     handleAdd() {
-      this.reset();
-      this.open = true;
-      this.title = "添加"+this.$t('system.vendor.title');
+      this.reset()
+      this.open = true
+      this.title = '添加' + this.$t('system.vendor.title')
     },
 
     /** 修改按钮操作 */
     handleUpdate(row) {
-      this.reset();
+      this.reset()
       const id = row.id || this.ids
       getSupplier(id).then(response => {
-        this.form = response.data;
-        this.form.isShipper = response.data.isShipper+''
-        this.open = true;
-        this.title = "修改"+this.$t('system.vendor.title');;
-      });
+        this.form = response.data
+        this.form.isShipper = response.data.isShipper + ''
+        this.open = true
+        this.title = '修改' + this.$t('system.vendor.title')
+      })
     },
     /** 提交按钮 */
     submitForm() {
-      this.$refs["form"].validate(valid => {
+      this.$refs['form'].validate(valid => {
         if (valid) {
           if (this.form.id != null) {
             updateSupplier(this.form).then(response => {
-              this.$modal.msgSuccess("修改成功");
-              this.open = false;
-              this.getList();
-            });
+              this.$modal.msgSuccess('修改成功')
+              this.open = false
+              this.getList()
+            })
           } else {
             addSupplier(this.form).then(response => {
-              this.$modal.msgSuccess("新增成功");
-              this.open = false;
-              this.getList();
-            });
+              this.$modal.msgSuccess('新增成功')
+              this.open = false
+              this.getList()
+            })
           }
         }
-      });
+      })
     },
     /** 删除按钮操作 */
     handleDelete(row) {
-      const ids = row.id || this.ids;
+      const ids = row.id || this.ids
       this.$modal.confirm('是否确认删除编号为"' + ids + '"的数据项？').then(function() {
-        return delSupplier(ids);
+        return delSupplier(ids)
       }).then(() => {
-        this.getList();
-        this.$modal.msgSuccess("删除成功");
-      }).catch(() => {});
-    },
+        this.getList()
+        this.$modal.msgSuccess('删除成功')
+      }).catch(() => {})
+    }
   }
-};
+}
 </script>

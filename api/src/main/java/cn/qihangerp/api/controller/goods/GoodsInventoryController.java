@@ -47,11 +47,6 @@ public class GoodsInventoryController extends BaseController {
         return success();
     }
 
-    @GetMapping("/goods_sku_stock_search")
-    public TableDataInfo searchSkuStockBy(Long warehouseId,String keyword, HttpServletRequest request)
-    {
-        List<OGoodsSku> list = goodsSkuService.searchGoodsSpecAndStock(keyword,warehouseId);
-        return getDataTable(list);
-    }
+
 
 }

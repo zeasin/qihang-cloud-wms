@@ -1,18 +1,41 @@
 package cn.qihangerp.api.controller.goods;
 
 import cn.qihangerp.common.*;
+import cn.qihangerp.common.enums.EnumUserType;
 import cn.qihangerp.model.bo.GoodsAddBo;
-import cn.qihangerp.model.entity.OGoods;
-import cn.qihangerp.model.entity.OGoodsSku;
+import cn.qihangerp.model.bo.GoodsSkuNewAddBo;
+import cn.qihangerp.model.entity.*;
+import cn.qihangerp.model.query.GoodsQuery;
+import cn.qihangerp.model.query.GoodsSkuQuery;
 import cn.qihangerp.model.vo.GoodsSpecListVo;
-import cn.qihangerp.service.OGoodsService;
-import cn.qihangerp.service.OGoodsSkuService;
 import cn.qihangerp.security.common.BaseController;
+import cn.qihangerp.security.common.SecurityUtils;
+import cn.qihangerp.service.*;
+import com.alibaba.fastjson2.JSON;
+import com.fasterxml.jackson.databind.exc.InvalidFormatException;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
-import org.springframework.security.access.prepost.PreAuthorize;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.ss.util.NumberToTextConverter;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.springframework.beans.BeanUtils;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
+import static cn.qihangerp.common.AjaxResult.CODE_TAG;
+import static cn.qihangerp.common.AjaxResult.MSG_TAG;
 
 /**
  * 商品管理Controller
@@ -20,13 +43,62 @@ import java.util.List;
  * @author qihang
  * @date 2023-12-29
  */
+@Slf4j
 @AllArgsConstructor
 @RestController
 @RequestMapping("/api/erp-api/goods")
 public class GoodsController extends BaseController
 {
     private final OGoodsService goodsService;
+    private final OShopService shopService;
+    private final OGoodsCategoryService goodsCategoryService;
+    private final OGoodsBrandService goodsBrandService;
     private final OGoodsSkuService skuService;
+    private final ErpMerchantService merchantService;
+    /**
+     * 查询商品列表
+     */
+    @GetMapping("/list")
+    public TableDataInfo list(GoodsQuery goods, PageQuery pageQuery) {
+        log.info("======商品库list======{}", JSON.toJSONString(goods));
+        Integer userIdentity = SecurityUtils.getUserIdentity();
+        if (userIdentity == null) {
+            return getDataTable(new  ArrayList<>());
+        } else if (userIdentity == EnumUserType.MERCHANT.getIndex()) {
+            // 查所有
+            PageResult<OGoods> pageList = goodsService.queryMerchantPageList(SecurityUtils.getDeptId(),goods, pageQuery);
+            return getDataTable(pageList);
+
+        }else{
+            log.error("无权限");
+            return getDataTable(new  ArrayList<>());
+        }
+
+
+    }
+
+    /**
+     * 商品skulist
+     * @param bo
+     * @param pageQuery
+     * @return
+     */
+    @GetMapping("/sku_list")
+    public TableDataInfo skuList(GoodsSkuQuery bo, PageQuery pageQuery) {
+        log.info("======商品库list======{}", JSON.toJSONString(bo));
+        Integer userIdentity = SecurityUtils.getUserIdentity();
+        if (userIdentity == null) {
+            // 登录用户错误
+            return getDataTable(new ArrayList<>());
+        } else if (userIdentity == EnumUserType.MERCHANT.getIndex()) {
+            //
+            var pageList = goodsService.querySkuMerchantPageList(SecurityUtils.getDeptId(), bo, pageQuery);
+            return getDataTable(pageList);
+        } else {
+            log.error("无权限");
+            return getDataTable(new ArrayList<>());
+        }
+    }
 
     /**
      * 搜索商品SKU
@@ -35,32 +107,32 @@ public class GoodsController extends BaseController
     @GetMapping("/searchSku")
     public TableDataInfo searchSkuBy(String keyword)
     {
-        List<GoodsSpecListVo> list = goodsService.searchGoodsSpec(keyword);
+        Integer userIdentity = SecurityUtils.getUserIdentity();
+        Long merchantId = 0l;
+        if (userIdentity == null || userIdentity == 0) {
+            // 查自营merchaid 0是为了兼容有方的老版本
+            ErpMerchant merchant = merchantService.getById(0);
+            if (merchant != null) {
+                merchantId = merchant.getId();
+            }else{
+                merchant = merchantService.getById(1L);
+                if (merchant != null) {
+                    merchantId = merchant.getId();
+                }
+            }
+        } else if (userIdentity == 20) {
+            merchantId = SecurityUtils.getDeptId();
+        }else{
+            merchantId = -1L;
+        }
+
+        List<GoodsSpecListVo> list = goodsService.searchGoodsSpec(merchantId,keyword);
         return getDataTable(list);
     }
 
-    @GetMapping("/sku_list")
-    public TableDataInfo skuList(OGoodsSku bo, PageQuery pageQuery)
-    {
-        var pageList = goodsService.querySkuPageList(bo,pageQuery);
-        return getDataTable(pageList);
-    }
-
     /**
-     * 查询商品管理列表
+     * 获取商品详细
      */
-    @PreAuthorize("@ss.hasPermi('goods:goods:list')")
-    @GetMapping("/list")
-    public TableDataInfo list(OGoods goods, PageQuery pageQuery)
-    {
-        PageResult<OGoods> pageList = goodsService.queryPageList(goods, pageQuery);
-        return getDataTable(pageList);
-    }
-
-    /**
-     * 获取商品管理详细信息
-     */
-    @PreAuthorize("@ss.hasPermi('goods:goods:query')")
     @GetMapping(value = "/{id}")
     public AjaxResult getInfo(@PathVariable("id") Long id)
     {
@@ -69,7 +141,6 @@ public class GoodsController extends BaseController
     /**
      * 获取商品管理详细信息
      */
-    @PreAuthorize("@ss.hasPermi('goods:goods:query')")
     @GetMapping(value = "/sku/{id}")
     public AjaxResult getSkuInfo(@PathVariable("id") Long id)
     {
@@ -78,10 +149,17 @@ public class GoodsController extends BaseController
     /**
      * 新增商品管理
      */
-    @PreAuthorize("@ss.hasPermi('goods:goods:add')")
     @PostMapping("/add")
     public AjaxResult add(@RequestBody GoodsAddBo goods)
     {
+        Integer userIdentity = SecurityUtils.getUserIdentity();
+        if (userIdentity == null) {
+            // 登录用户错误
+            return AjaxResult.error("登录错误，请重新登录");
+        } else if (userIdentity != EnumUserType.MERCHANT.getIndex()) {
+            return AjaxResult.error("无权限");
+        }
+        goods.setMerchantId(SecurityUtils.getDeptId());
         ResultVo<Long> resultVo = goodsService.insertGoods(getUsername(), goods);
         if(resultVo.getCode()!=0) return AjaxResult.error(resultVo.getMsg());
         else return AjaxResult.success(resultVo.getData());
@@ -91,41 +169,73 @@ public class GoodsController extends BaseController
 //        return toAjax(1);
     }
 
-    @PreAuthorize("@ss.hasPermi('goods:goods:add')")
-    @PostMapping("/goodsSku")
-    public AjaxResult addSku(@RequestBody OGoodsSku goodsSku)
-    {
 
-        int result = goodsService.insertGoodsSku(goodsSku);
-        if(result == -1) new AjaxResult(501,"商品编码已存在");
-        return toAjax(1);
-    }
+
 
     /**
-     * 修改商品管理
+     * 修改商品
      */
-    @PreAuthorize("@ss.hasPermi('goods:goods:edit')")
     @PutMapping
-    public AjaxResult edit(@RequestBody OGoods goods)
-    {
-        return toAjax(goodsService.updateGoods(goods));
+    public AjaxResult edit(@RequestBody OGoods goods) {
+//        Integer userIdentity = SecurityUtils.getUserIdentity();
+//        if(userIdentity == null||userIdentity==0){
+//            if(goods.getMerchantId()==null){
+//                goods.setMerchantId(0L);
+//            }
+//        }else if(userIdentity==20){
+//            // 商户 不能变更商品的商户ID
+//            goods.setMerchantId(null);
+//        }else{
+//            return AjaxResult.error("无权限操作");
+//        }
+        // 不允许修改商户
+        goods.setMerchantId(null);
+        ResultVo resultVo = goodsService.updateGoods(goods);
+        if(resultVo.getCode()==0) return AjaxResult.success();
+        else return AjaxResult.error(resultVo.getMsg());
     }
 
     /**
-     * 修改商品基本资料
+     * 添加商品sku
+     * @param goods
+     * @return
+     */
+    @PostMapping("/addSku")
+    public AjaxResult addSku(@RequestBody GoodsSkuNewAddBo goods)
+    {
+        if(goods.getId()==null||goods.getId()<=0) return AjaxResult.error("缺少参数ID");
+        ResultVo<Long> resultVo = goodsService.insertGoodsSku(getUsername(), goods);
+        if(resultVo.getCode()!=0) return AjaxResult.error(resultVo.getMsg());
+        else return AjaxResult.success(resultVo.getData());
+    }
+
+    /**
+     * 修改商品sku
      * @param sku
      * @return
      */
     @PutMapping("/sku")
     public AjaxResult editSku(@RequestBody OGoodsSku sku)
     {
-        return toAjax(skuService.updateById(sku));
+        Integer userIdentity = SecurityUtils.getUserIdentity();
+        if(userIdentity == null||userIdentity==0){
+            if(sku.getMerchantId()==null){
+                sku.setMerchantId(0L);
+            }
+        }else if(userIdentity==20){
+            // 商户 不能变更商品的商户ID
+            sku.setMerchantId(null);
+        }else{
+            return AjaxResult.error("无权限操作");
+        }
+        ResultVo resultVo = skuService.updateSku(sku);
+        if(resultVo.getCode()==0) return AjaxResult.success();
+        else return AjaxResult.error(resultVo.getMsg());
     }
 
     /**
-     * 删除商品管理
+     * 删除商品
      */
-    @PreAuthorize("@ss.hasPermi('goods:goods:remove')")
     @DeleteMapping("/del/{ids}")
     public AjaxResult remove(@PathVariable Long[] ids)
     {
@@ -134,91 +244,13 @@ public class GoodsController extends BaseController
         else if (result==-100) return AjaxResult.error("有关联的订单，不能删除！");
         else return AjaxResult.error();
     }
+    @DeleteMapping("/goodsSkuDel/{id}")
+    public AjaxResult remove(@PathVariable Long id)
+    {
+        ResultVo result = skuService.deleteSkuById(id);
+//        int result = goodsService.deleteGoodsByIds(ids);
+        if(result.getCode()==0) return AjaxResult.success();
+        else return AjaxResult.error(result.getMsg());
+    }
 
-//    @RequestMapping(value = "/goods_sku_import", method = RequestMethod.POST)
-//    public AjaxResult orderSendExcel(@RequestPart("file") MultipartFile file) throws IOException, InvalidFormatException {
-//
-//        String fileName = file.getOriginalFilename();
-//        String dir = System.getProperty("user.dir");
-//        String destFileName = dir + File.separator + "/import/uploadedfiles_" + fileName;
-//        System.out.println(destFileName);
-//        File destFile = new File(destFileName);
-//        file.transferTo(destFile);
-//        InputStream fis = null;
-//        fis = new FileInputStream(destFileName);
-//        if (fis == null) return AjaxResult.error("没有文件");
-//
-//        Workbook workbook = null;
-//
-//        try {
-//            if (fileName.toLowerCase().endsWith("xlsx")) {
-//                workbook = new XSSFWorkbook(fis);
-//            } else if (fileName.toLowerCase().endsWith("xls")) {
-//                workbook = new HSSFWorkbook(fis);
-//            }
-//            // workbook = new HSSFWorkbook(fis);
-//        } catch (Exception ex) {
-//            return AjaxResult.error(ex.getMessage());
-//        }
-//
-//        if (workbook == null) return AjaxResult.error(502, "未读取到Excel文件");
-//
-//        /****************开始处理excel****************/
-//        int success = 0;
-//        int fail = 0;
-//        Sheet sheet = null;
-//        try {
-//            sheet = workbook.getSheetAt(0);
-//            int lastRowNum = sheet.getLastRowNum();//最后一行索引
-//            Row row = null;
-//
-//            for (int i = 1; i <= lastRowNum; i++) {
-//                row = sheet.getRow(i);
-//                //数据
-//                OGoodsSku  sku = new OGoodsSku();
-//                for(int c=0;c<6;c++){
-//                    Cell cell = row.getCell(c);
-//                    String cellValue = "";
-//                    if (cell != null) {
-//                        if (cell.getCellType() == CellType.STRING) {
-//                            cellValue = cell.getStringCellValue().replace("\t", "");
-//                        } else if (cell.getCellType() == CellType.NUMERIC) {
-//                            cellValue = NumberToTextConverter.toText(cell.getNumericCellValue()).replace("\t", "");
-//                        }
-//                    }
-//                    if(c == 1) {
-//                        if(StringUtils.hasText(cellValue) ){
-//                            sku.setOuterErpGoodsId(cellValue);
-//                        }else {
-//                            sku.setOuterErpGoodsId("0");
-//                        }
-//                    }
-//                    if(StringUtils.hasText(cellValue)) {
-//                        if (c == 0) {
-//                            sku.setOuterErpSkuId(cellValue);
-//                        } else if (c == 2) {
-//                            sku.setSkuCode(cellValue);
-//                        } else if (c == 3) {
-//                            sku.setSkuName(cellValue);
-//                        } else if (c == 4) {
-//                            sku.setColorImage(cellValue);
-//                        } else if (c == 5) {
-//                            sku.setRemark(cellValue);
-//                        }
-//                    }
-//                }
-//                goodsService.insertGoodsSku(sku);
-//                success++;
-//            }
-//
-//
-//        } catch (Exception ex) {
-//           fail++;
-//            ex.printStackTrace();
-//        }
-//        Map<String, Integer> result = new HashMap<>();
-//        result.put("success",success);
-//        result.put("fail",fail);
-//        return AjaxResult.success(result);
-//    }
 }

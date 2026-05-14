@@ -19,7 +19,7 @@ public class GoodsAddBo
 
     /** 主键id */
     private Long id;
-
+    private Long merchantId;
     /** 商品名称 */
     private String name;
 

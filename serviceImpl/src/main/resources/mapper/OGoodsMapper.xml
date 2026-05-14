@@ -7,8 +7,10 @@
     <resultMap id="BaseResultMap" type="cn.qihangerp.model.entity.OGoods">
             <id property="id" column="id" jdbcType="BIGINT"/>
             <result property="name" column="name" jdbcType="VARCHAR"/>
+            <result property="priceType" column="price_type" jdbcType="INTEGER"/>
             <result property="image" column="image" jdbcType="VARCHAR"/>
             <result property="outerErpGoodsId" column="outer_erp_goods_id" jdbcType="VARCHAR"/>
+            <result property="sellerId" column="seller_id" jdbcType="VARCHAR"/>
             <result property="province" column="province" jdbcType="VARCHAR"/>
             <result property="city" column="city" jdbcType="VARCHAR"/>
             <result property="town" column="town" jdbcType="VARCHAR"/>
@@ -45,9 +47,13 @@
             <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
             <result property="updateBy" column="update_by" jdbcType="VARCHAR"/>
             <result property="updateTime" column="update_time" jdbcType="TIMESTAMP"/>
+            <result property="shipType" column="ship_type" jdbcType="INTEGER"/>
+            <result property="merchantId" column="merchant_id" jdbcType="BIGINT"/>
+            <result property="shopId" column="shop_id" jdbcType="BIGINT"/>
     </resultMap>
     <resultMap type="cn.qihangerp.model.vo.GoodsSpecListVo" id="GoodsSpecListVoResult">
         <result property="skuId"    column="sku_id"    />
+        <result property="priceType"    column="price_type"    />
         <result property="goodsName"    column="goods_name"    />
         <result property="skuName"    column="sku_name"    />
         <result property="outerErpSkuId"    column="outer_erp_sku_id"    />
@@ -61,7 +67,7 @@
     </resultMap>
 
     <sql id="Base_Column_List">
-        id,name,image,province,city,town,
+        id,name,image,province,city,town,seller_id,price_type,
         outer_erp_goods_id,goods_num,unit_name,
         category_id,bar_code,remark,
         status,length,height,
@@ -73,16 +79,30 @@
         attr3,attr4,attr5,
         link_url,low_qty,high_qty,
         create_by,create_time,update_by,
-        update_time
+        update_time,ship_type,merchant_id,shop_id
     </sql>
+    <select id="getVendorGoodsSpecByCode" parameterType="String" resultMap="GoodsSpecListVoResult">
+        SELECT g.`name`,spec.id as sku_id,spec.price_type,spec.outer_erp_goods_id,spec.outer_erp_sku_id,spec.`sku_name`,
+        spec.sku_code,spec.color_value,spec.color_image,spec.size_value,spec.style_value,
+        spec.retail_price,spec.pur_price,spec.goods_name
+        FROM `o_goods_sku` as spec
+        LEFT JOIN o_goods as g on g.id = spec.goods_id
+        <where>
+            and g.supplier_id=#{vendorId}
+            <if test="skuCode != null  and skuCode != ''">
+                and spec.sku_code = #{skuCode}
 
+            </if>
+        </where>
+    </select>
     <select id="searchGoodsSpec" parameterType="String" resultMap="GoodsSpecListVoResult">
-        SELECT g.`name`,spec.goods_id,spec.id as sku_id,spec.outer_erp_goods_id,spec.outer_erp_sku_id,spec.`sku_name`,
+        SELECT g.id as goods_id,g.`name`,spec.id as sku_id,spec.price_type,spec.outer_erp_goods_id,spec.outer_erp_sku_id,spec.`sku_name`,
                spec.sku_code,spec.color_value,spec.color_image,spec.size_value,spec.style_value,
                spec.retail_price,spec.pur_price,spec.goods_name
         FROM `o_goods_sku` as spec
         LEFT JOIN o_goods as g on g.id = spec.goods_id
         <where>
+                                      and g.merchant_id=#{merchantId}
             <if test="keyword != null  and keyword != ''">
                 and
                 (
